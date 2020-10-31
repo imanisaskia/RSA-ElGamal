@@ -7,14 +7,14 @@ def byteToStr(b):
 	return b.decode('latin-1')
 
 def intToByte(i):
-    return bytes(i)
+    return i.to_bytes((i.bit_length() + 7) // 8, 'big')
 
 def byteToInt(b):
     return int.from_bytes(b, "big")
 
 def get_blocks(message, n):
-    msg_bytes = str(arr_to_str(strToByte(message)))
-    size = get_block_size(n)
+    msg_bytes = str(byteToInt(strToByte(message)))
+    size = get_block_size(n) - 1
     return [int(msg_bytes[i : i + size]) for i in range(0, len(msg_bytes), size)]
 
 def get_block_size(n):
@@ -31,4 +31,4 @@ def arr_to_str(arr):
     except:
         return ''.join(arr)
 
-# print(int_blocks(byteToInt(strToByte("HELLO ALICE")), 105))
+print(get_blocks("HELLO ALICE", 105))
