@@ -1,3 +1,5 @@
+from math import gcd
+
 def strToByte(s):
 	return bytearray(s, "latin-1")
 
@@ -29,17 +31,4 @@ def arr_to_str(arr):
     except:
         return ''.join(arr)
 
-def is_coprime(a, b):
-    return gcd(a, b) == 1
-
-def is_prime(num):
-    if num > 1:
-        for i in range(2, num): 
-            if (num % i) == 0: 
-                return False
-        else:
-            return True 
-    else:
-        return False 
-        
 # print(int_blocks(byteToInt(strToByte("HELLO ALICE")), 105))
