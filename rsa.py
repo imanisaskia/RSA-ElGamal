@@ -1,5 +1,6 @@
 from math import gcd
 from random import shuffle
+from conversions import get_blocks, get_string
 
 def is_coprime(a, b):
     return gcd(a, b) == 1
@@ -12,7 +13,7 @@ def is_prime(num):
         else:
             return True 
     else:
-        return False 
+        return False
 
 def random_e(phi):
     suggestions = list(range(2, phi))
@@ -22,7 +23,7 @@ def random_e(phi):
             return num
 
 # Generate private and public keys, returns n, e, and d
-def generate_keys(p, q, e = None, pub_fpath = "key.pub", pri_fpath = "key.pri"):
+def generate_keys(p, q, e = None):
     
     if not is_prime(p):
         print("Fail to generate keys;", p, "is not a prime number")
@@ -42,12 +43,6 @@ def generate_keys(p, q, e = None, pub_fpath = "key.pub", pri_fpath = "key.pri"):
     else:
         e = random_e(phi)
 
-    # write public key in format n<br>e
-    f = open(pub_fpath, "w")
-    f.write(str(n) + "\n" + str(e))
-    f.close()
-    print("Public key saved to", pub_fpath)
-
     # generate private key
     k = 1
     d = (1 + k*phi) / e
@@ -56,15 +51,23 @@ def generate_keys(p, q, e = None, pub_fpath = "key.pub", pri_fpath = "key.pri"):
         d = (1 + k*phi) / e
     d = round(d)
 
-    # write private key
-    f = open(pri_fpath, "w")
-    f.write(str(d))
-    f.close()
-    print("Private key saved to", pri_fpath)
-
     return n, e, d
 
-n, e, d = generate_keys(2, 5, 3)
-print("n:", n)
-print("e:", e)
-print("d:", d)
+def encrypt(plaintext, n, e):
+    block_size = len(str(n)) // 4
+    blocks = get_blocks(plaintext, block_size)
+    print(blocks)
+    c_blocks = []
+    for block in blocks:
+        c_blocks.append((block ** e) % n)
+    ciphertext = get_string(c_blocks)
+    return ciphertext
+
+#n, e, d = generate_keys(3109, 7331)
+#print(n)
+#print(e)
+#print(d)
+
+c = encrypt("TEST MESSAGE", 3337, 79)
+print(c)
+print(encrypt(c, 3337, 1019))

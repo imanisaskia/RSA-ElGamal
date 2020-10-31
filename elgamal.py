@@ -15,7 +15,7 @@ def encrypt(plaintext, g, x, p):
         b = (y**k) * blok % p
         block_ciphertext.append(int(str(a) + str(b)))
 
-    byte_ciphertext = conversions.get_string(block_ciphertext, p)
+    byte_ciphertext = conversions.get_string(block_ciphertext)
     # byte_ciphertext = [byte_ciphertext[i : i + 2] for i in range(0, len(byte_ciphertext), 2)]
     # ciphertext = conversions.byteToStr(byte_ciphertext)
     
