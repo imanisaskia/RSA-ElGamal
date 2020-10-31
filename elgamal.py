@@ -6,9 +6,20 @@ from math import factorial
 
 def encrypt(plaintext, g, x, p):
     plaintext = conversions.get_blocks(plaintext, p)
-    ciphertext = plaintext
+    block_ciphertext = []
+    k = get_random_k(p)
+    y = get_public_key(g, x, p)
+    
+    for blok in plaintext:
+        a = (g**k) % p
+        b = (y**k) * blok % p
+        block_ciphertext.append(str(a) + str(b))
 
-    return ciphertext
+    byte_ciphertext = conversions.arr_to_str(block_ciphertext)
+    # byte_ciphertext = [byte_ciphertext[i : i + 2] for i in range(0, len(byte_ciphertext), 2)]
+    # ciphertext = conversions.byteToStr(byte_ciphertext)
+    
+    return byte_ciphertext
 
 def decrypt(ciphertext, key):
     plaintext = ciphertext
