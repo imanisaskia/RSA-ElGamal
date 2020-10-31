@@ -1,26 +1,31 @@
-def get_blocks(message, block_size):
+from Crypto.Util.number import bytes_to_long, long_to_bytes
+
+def string_get_blocks(message, block_size):
     blocks = []
     for i in range(0, len(message), block_size):
-        block = 0
-        for j in range(block_size):
-            if ((i+j) < len(message)):
-                block = block * 10000 + ord(message[i+j])
+        block = bytes_to_long(message[i:i+block_size])
         blocks.append(block)
     return blocks
 
+def int_get_blocks(message, block_size):
+    blocks = []
+    for i in range(0, len(message), block_size):
+        block = int(message[i:i+block_size])
+        blocks.append(block)
+    return blocks
+
+def get_int(blocks, max_digits):
+    int_string = ''
+    for block in blocks:
+        string = str(block)
+        if (len(string) < max_digits):
+            string = '0' * (max_digits - len(string)) + string
+        int_string += string
+    return int_string
+
 def get_string(blocks):
-    message = ''
-    for i in range(len(blocks)):
-        block_msg = ""
-        while (len(str(blocks[i])) > 4):
-            block_msg = chr(blocks[i] % 10000) + block_msg
-            blocks[i] //= 10000
-        block_msg = chr(blocks[i]) + block_msg
+    message = long_to_bytes(blocks[0])
+    for i in range(1, len(blocks)):
+        block_msg = long_to_bytes(blocks[i])
         message += block_msg
     return message
-
-#blocks = get_blocks("HELLO ALICE", 1)
-#print(blocks)
-
-#msg = get_string(blocks)
-#print(msg)

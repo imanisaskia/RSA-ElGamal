@@ -1,6 +1,6 @@
 from math import gcd
 from random import shuffle
-from conversions import get_blocks, get_string
+from conversions import string_get_blocks, int_get_blocks, get_string, get_int
 
 def is_coprime(a, b):
     return gcd(a, b) == 1
@@ -55,19 +55,27 @@ def generate_keys(p, q, e = None):
 
 def encrypt(plaintext, n, e):
     block_size = len(str(n)) // 4
-    blocks = get_blocks(plaintext, block_size)
-    print(blocks)
+    blocks = string_get_blocks(plaintext, block_size)
     c_blocks = []
     for block in blocks:
-        c_blocks.append((block ** e) % n)
-    ciphertext = get_string(c_blocks)
+        c_blocks.append(pow(block, e, n))
+    ciphertext = get_int(c_blocks, len(str(n)))
     return ciphertext
 
-#n, e, d = generate_keys(3109, 7331)
-#print(n)
-#print(e)
-#print(d)
+def decrypt(ciphertext, n, d):
+    block_size = len(str(n))
+    blocks = int_get_blocks(ciphertext, block_size)
+    p_blocks = []
+    for block in blocks:
+        p_blocks.append(pow(block, d, n))
+    plaintext = get_string(p_blocks)
+    return plaintext
 
-c = encrypt("TEST MESSAGE", 3337, 79)
-print(c)
-print(encrypt(c, 3337, 1019))
+'''n, e, d = generate_keys(3109, 7331)
+print(n)
+print(e)
+print(d)'''
+
+c = encrypt(("TEST MESSAGE").encode('latin-1'), 22792079, 11378501)
+print("Hasil:", c)
+print(decrypt(c, 22792079, 18669701).decode('latin-1'))
