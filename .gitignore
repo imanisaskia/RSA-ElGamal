@@ -131,3 +131,5 @@ dmypy.json
 # Project files
 *.pri
 *.pub
+*.png
+ciphertext

@@ -62,7 +62,6 @@ def encrypt(plaintext, n, e):
     for block in blocks:
         c_blocks.append(pow(block, e, n))
     ciphertext = get_int(c_blocks, len(str(n)))
-    print(ciphertext, '\n', c_blocks)
     return ciphertext
 
 # FUNC: DECRYPT
