@@ -3,6 +3,7 @@ import PySimpleGUI as sg
 import rsa
 import elgamal as eg
 import time
+from ast import literal_eval
 
 rsa1 = [
     [sg.Text('Prime number 1:', size=(15, 1)), sg.In(key="rsa1_p")],
@@ -163,10 +164,11 @@ def readText(path):
 
 def readKeys(path):
     f = open(path, "r")
-    v1 = int(f.readline())
-    v2 = int(f.readline())
+    res = []
+    for line in f:
+        res.append(int(line))
     f.close()
-    return v1, v2
+    return res
 
 window = sg.Window('Public-Key Cryptography', layout)
 while True:
@@ -191,7 +193,9 @@ while True:
     # RSA ENCRYPT
     if e == 'rsa2_text_run':
         pt = v['rsa2_text_in'].encode('latin-1')
-        n, e = readKeys(v['rsa2_text_key'])
+        keys = readKeys(v['rsa2_text_key'])
+        n = keys[0]
+        e = keys[1]
         start_time = time.time()
         ct = rsa.encrypt(pt, n, e)
         dur = time.time() - start_time
@@ -199,7 +203,9 @@ while True:
         window['msg'].update("Executed in " + str(dur) + " seconds")
     if e == 'rsa2_file_run':
         pt = readText(v['rsa2_file_in'])
-        n, e = readKeys(v['rsa2_file_key'])
+        keys = readKeys(v['rsa2_file_key'])
+        n = keys[0]
+        e = keys[1]
         start_time = time.time()
         ct = rsa.encrypt(pt, n, e)
         dur = time.time() - start_time
@@ -210,7 +216,9 @@ while True:
     # RSA DECRYPT
     if e == 'rsa3_text_run':
         ct = v['rsa3_text_in'].rstrip('\n')
-        n, d = readKeys(v['rsa3_text_key'])
+        keys = readKeys(v['rsa3_text_key'])
+        n = keys[0]
+        d = keys[1]
         start_time = time.time()
         dur = time.time() - start_time
         pt = rsa.decrypt(ct, n, d).decode('latin-1')
@@ -218,7 +226,9 @@ while True:
         window['msg'].update("Executed in " + str(dur) + " seconds")
     if e == 'rsa3_file_run':
         ct = readText(v['rsa3_file_in'])
-        n, d = readKeys(v['rsa3_file_key'])
+        keys = readKeys(v['rsa3_file_key'])
+        n = keys[0]
+        d = keys[1]
         start_time = time.time()
         pt = rsa.decrypt(ct, n, d)
         dur = time.time() - start_time
@@ -241,6 +251,54 @@ while True:
             writeFile(pri_key, pri_path)
             m += "\nPrivate key saved to " + pri_path
             window['msg'].update(m)
+    
+    # ELGAMAL ENCRYPT
+    if e == 'eg2_text_run':
+        pt = v['eg2_text_in'].encode('latin-1')
+        keys = readKeys(v['eg2_text_key'])
+        y = keys[0]
+        g = keys[1]
+        p = keys[2]
+        start_time = time.time()
+        ct = eg.encrypt(pt, y, g, p, int(v['eg2_text_k']))
+        dur = time.time() - start_time
+        window['eg2_text_out'].update(ct)
+        window['msg'].update("Executed in " + str(dur) + " seconds")
+    if e == 'eg2_file_run':
+        pt = readText(v['eg2_file_in'])
+        keys = readKeys(v['eg2_file_key'])
+        y = keys[0]
+        g = keys[1]
+        p = keys[2]
+        start_time = time.time()
+        ct = eg.encrypt(pt, y, g, p, int(v['eg2_file_k']))
+        dur = time.time() - start_time
+        path = 'ciphertext' if (v['eg2_file_out'] == '') else v['eg2_file_out']
+        writeFile(ct, path)
+        window['msg'].update("Executed in " + str(dur) + " seconds\nCiphertext saved to " + path)
+
+    # ELGAMAL DECRYPT
+    if e == 'eg3_text_run':
+        ct = literal_eval(v['eg3_text_in'].rstrip('\n'))
+        keys = readKeys(v['eg3_text_key'])
+        x = keys[0]
+        p = keys[1]
+        start_time = time.time()
+        dur = time.time() - start_time
+        pt = eg.decrypt(ct, x, p).decode('latin-1')
+        window['eg3_text_out'].update(pt)
+        window['msg'].update("Executed in " + str(dur) + " seconds")
+    if e == 'eg3_file_run':
+        ct = literal_eval(readText(v['eg3_file_in']))
+        keys = readKeys(v['eg3_file_key'])
+        x = keys[0]
+        p = keys[1]
+        start_time = time.time()
+        pt = eg.decrypt(ct, x, p)
+        dur = time.time() - start_time
+        path = 'plaintext' if (v['eg3_file_out'] == '') else v['eg3_file_out']
+        writeFileByte(pt, path)
+        window['msg'].update("Executed in " + str(dur) + " seconds\nPlaintext saved to " + path)
 
     # EXIT
     if e == 'close' or e == sg.WIN_CLOSED:
