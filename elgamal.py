@@ -1,43 +1,81 @@
 import sys
-import conversions
+from conversions import string_get_blocks, int_get_blocks, get_string, get_int
 import rsa
 import random
 from math import factorial
 
-def encrypt(plaintext, g, x, p):
-    plaintext = conversions.get_blocks(plaintext, p)
+def encrypt(plaintext, y, g, p, k):
+    block_size = len(str(p)) // 4
+    plaintext = string_get_blocks(plaintext, block_size)
+    print("--------PLAINTEXT BLOCK CREATED---------")
+    print(plaintext)
     block_ciphertext = []
-    k = get_random_k(p)
-    y = get_public_key(g, x, p)
-    
+
     for blok in plaintext:
-        a = (g**k) % p
-        b = (y**k) * blok % p
-        block_ciphertext.append(int(str(a) + str(b)))
+        a = pow(g, k, p)
+        b = pow(y, k) * blok % p
+        block_ciphertext.append([a, b])
 
-    byte_ciphertext = conversions.get_string(block_ciphertext)
-    # byte_ciphertext = [byte_ciphertext[i : i + 2] for i in range(0, len(byte_ciphertext), 2)]
-    # ciphertext = conversions.byteToStr(byte_ciphertext)
-    
-    return byte_ciphertext
+    print("--------ENCRYPTION DONE---------")
 
-def decrypt(ciphertext, key):
-    plaintext = ciphertext
+    ciphertext = block_ciphertext
+
+    print("--------ENCRYPTION FORMATTING DONE---------")
+
+    return ciphertext
+
+def decrypt(ciphertext, x, p):
+    block_size = len(str(p)) // 4
+    block_plaintext = []
+
+    for blok in ciphertext:
+        a = blok[0]
+        b = blok[1]
+        a2 = pow(a, (p-1-x), p)
+        m = b * a2 % p
+        print(a, b, p, a2)
+        block_plaintext.append(m)
+
+    print(block_plaintext)
+    plaintext = get_string(block_plaintext)
 
     return plaintext
 
-def get_public_key(g, x, p):
-    return ((g**x) % p)
+def get_keys(g, x, p):
+    if is_key_valid(g, x, p):
+        return [(pow(g, x, p)), g, p], [x, p] # public key [y, g, p], private key [x, p]
+    else:
+        return 0
 
 def is_key_valid(g, x, p):
     return (rsa.is_prime(p)) and (g < p) and (1 <= x) and (x <= p-2)
 
-def get_random_k(p):
-    return random.randrange(1, p-2)
+def is_k_valid(k, p):
+    return (k < p) and (k >= 0)
+    
 
-# print(sys.maxsize, 2**63-1)
-# for i in conversions.strToByte("halo"):
-#     print(i)
-# print(get_random_k(137))
+keys = get_keys(1795041, 119, 2792099)
+public_key = keys[0]
+private_key = keys[1]
 
-print(encrypt("halo", 1, 2, 317))
+y = public_key[0]
+g = public_key[1]
+p = public_key[2]
+k = 123
+x = private_key[0]
+msg = "halo apa kabar? nama saya elvina".encode('latin-1')
+
+# print(g, k, p)
+# print(g**k)
+# print((g**k) % p)
+
+ciphertext = encrypt(msg, y, g, p, k)
+print(ciphertext)
+
+plaintext = decrypt(ciphertext, x, p)
+print(plaintext)
+
+# x = 2792097
+# while rsa.is_prime(x) == False:
+#     x += 1
+# print(x)
