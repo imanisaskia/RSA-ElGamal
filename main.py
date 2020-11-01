@@ -1,6 +1,7 @@
 import os
 import PySimpleGUI as sg
 import rsa
+import time
 
 rsa1 = [
     [sg.Text('Prime number 1:', size=(15, 1)), sg.In(key="rsa1_p")],
@@ -11,9 +12,6 @@ rsa1 = [
     [sg.Text('Save private key as:', size=(15, 1)), sg.In(key="rsa1_pri"), sg.FileBrowse()],
     [sg.Text('')],
     [sg.Button('Generate Keys', size=(15, 1), key='rsa1_run')],
-    [sg.Text('_'*75)],
-    [sg.Text('Output Message')],
-    [sg.Text('', key='rsa1_msg', size=(65,3))],
 ]
 
 rsa2_text = [
@@ -31,9 +29,6 @@ rsa2_file = [
     [sg.Text('Save as (optional):', size=(15, 1)), sg.In(key="rsa2_file_out"), sg.FileBrowse()],
     [sg.Text('')],
     [sg.Button('Encrypt Text', size=(15, 1), key='rsa2_file_run')],
-    [sg.Text('_'*75)],
-    [sg.Text('Output Message')],
-    [sg.Text('', key='rsa2_file_msg', size=(65,3))],
 ]
 
 rsa3_text = [
@@ -51,9 +46,6 @@ rsa3_file = [
     [sg.Text('Save as (optional):', size=(15, 1)), sg.In(key="rsa3_file_out"), sg.FileBrowse()],
     [sg.Text('')],
     [sg.Button('Decrypt Text', size=(15, 1), key='rsa3_file_run')],
-    [sg.Text('_'*75)],
-    [sg.Text('Output Message')],
-    [sg.Text('', key='rsa3_file_msg', size=(65,3))],
 ]
 
 def pad(content):
@@ -73,13 +65,16 @@ rsa3 = [[
     ]])
 ]]
 
-layout = [[
-    sg.TabGroup([[
-        sg.Tab('RSA Key',     pad(rsa1)),
-        sg.Tab('RSA Encrypt', rsa2),
-        sg.Tab('RSA Decrypt', rsa3),
-    ]])
-]]
+layout = [
+    [
+        sg.TabGroup([[
+            sg.Tab('RSA Key',     pad(rsa1)),
+            sg.Tab('RSA Encrypt', rsa2),
+            sg.Tab('RSA Decrypt', rsa3),
+        ]])
+    ],
+    [sg.Frame('Message Output', [[sg.Text('', key='msg', size=(75,5))]])],
+]
 
 def writeFile(msg, path):
     f = open(path, "w")
@@ -112,45 +107,55 @@ while True:
     if e == 'rsa1_run':
         m, n, e, d = rsa.generate_keys(int(v['rsa1_p']), int(v['rsa1_q']), int(v['rsa1_e']))
         if m:
-            window['rsa1_msg'].update(m)
+            window['msg'].update(m)
         else:
             pub = str(n) + '\n' + str(e)
             pri = str(n) + '\n' + str(d)
-            pub_path = 'key.pub' if (v['rsa1_pub'] == '') else v['rsa1_pub']
-            pri_path = 'key.pri' if (v['rsa1_pri'] == '') else v['rsa1_pri']
+            pub_path = 'rsa_key.pub' if (v['rsa1_pub'] == '') else v['rsa1_pub']
+            pri_path = 'rsa_key.pri' if (v['rsa1_pri'] == '') else v['rsa1_pri']
             writeFile(pub, pub_path)
             m = "Public key saved to " + pub_path
             writeFile(pri, pri_path)
             m += "\nPrivate key saved to " + pri_path
-            window['rsa1_msg'].update(m)
+            window['msg'].update(m)
     
     # RSA ENCRYPT
     if e == 'rsa2_text_run':
         pt = v['rsa2_text_in'].encode('latin-1')
         n, e = readKeys(v['rsa2_text_key'])
+        start_time = time.time()
         ct = rsa.encrypt(pt, n, e)
-        window['rsa2_text_out'].update(ct)        
+        dur = time.time() - start_time
+        window['rsa2_text_out'].update(ct)
+        window['msg'].update("Executed in " + str(dur) + " seconds")
     if e == 'rsa2_file_run':
         pt = readText(v['rsa2_file_in'])
         n, e = readKeys(v['rsa2_file_key'])
+        start_time = time.time()
         ct = rsa.encrypt(pt, n, e)
+        dur = time.time() - start_time
         path = 'ciphertext' if (v['rsa2_file_out'] == '') else v['rsa2_file_out']
         writeFile(ct, path)
-        window['rsa2_file_msg'].update("Ciphertext saved to " + path)
+        window['msg'].update("Executed in " + str(dur) + " seconds\nCiphertext saved to " + path)
 
     # RSA DECRYPT
     if e == 'rsa3_text_run':
         ct = v['rsa3_text_in'].rstrip('\n')
         n, d = readKeys(v['rsa3_text_key'])
+        start_time = time.time()
+        dur = time.time() - start_time
         pt = rsa.decrypt(ct, n, d).decode('latin-1')
         window['rsa3_text_out'].update(pt)
+        window['msg'].update("Executed in " + str(dur) + " seconds")
     if e == 'rsa3_file_run':
         ct = readText(v['rsa3_file_in'])
         n, d = readKeys(v['rsa3_file_key'])
+        start_time = time.time()
         pt = rsa.decrypt(ct, n, d)
+        dur = time.time() - start_time
         path = 'plaintext' if (v['rsa3_file_out'] == '') else v['rsa3_file_out']
         writeFileByte(pt, path)
-        window['rsa3_file_msg'].update("Plaintext saved to " + path)
+        window['msg'].update("Executed in " + str(dur) + " seconds\nPlaintext saved to " + path)
 
     # EXIT
     if e == 'close' or e == sg.WIN_CLOSED:
