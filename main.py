@@ -1,6 +1,7 @@
 import os
 import PySimpleGUI as sg
 import rsa
+import elgamal as eg
 import time
 
 rsa1 = [
@@ -48,29 +49,97 @@ rsa3_file = [
     [sg.Button('Decrypt Text', size=(15, 1), key='rsa3_file_run')],
 ]
 
+eg1 = [
+    [sg.Text('Number g:', size=(15, 1)), sg.In(key="eg1_g")],
+    [sg.Text('Number x:', size=(15, 1)), sg.In(key="eg1_x")],
+    [sg.Text('Number p:', size=(15, 1)), sg.In(key="eg1_p")],
+    [sg.Text('Save as (optional):', size=(15, 1))],
+    [sg.Text('Save public key as:', size=(15, 1)), sg.In(key="eg1_pub"), sg.FileBrowse()],
+    [sg.Text('Save private key as:', size=(15, 1)), sg.In(key="eg1_pri"), sg.FileBrowse()],
+    [sg.Text('')],
+    [sg.Button('Generate Keys', size=(15, 1), key='eg1_run')],
+]
+
+eg2_text = [
+    [sg.Text('Plaintext:', size=(15, 1)), sg.Multiline(key="eg2_text_in", size=(51,4))],
+    [sg.Text('Public key:', size=(15, 1)), sg.In(key="eg2_text_key"), sg.FileBrowse()],
+    [sg.Text('Number k:', size=(15, 1)), sg.In(key="eg2_text_k")],
+    [sg.Text('')],
+    [sg.Button('Encrypt Text', size=(15, 1), key='eg2_text_run')],
+    [sg.Text('')],
+    [sg.Text('Ciphertext:', size=(15, 1)), sg.Multiline(key="eg2_text_out", size=(51,4))],
+]
+
+eg2_file = [
+    [sg.Text('Plaintext path:', size=(15, 1)), sg.In(key="eg2_file_in"), sg.FileBrowse()],
+    [sg.Text('Public key:', size=(15, 1)), sg.In(key="eg2_file_key"), sg.FileBrowse()],
+    [sg.Text('Number k:', size=(15, 1)), sg.In(key="eg2_file_k")],
+    [sg.Text('Save as (optional):', size=(15, 1)), sg.In(key="eg2_file_out"), sg.FileBrowse()],
+    [sg.Text('')],
+    [sg.Button('Encrypt Text', size=(15, 1), key='eg2_file_run')],
+]
+
+eg3_text = [
+    [sg.Text('Ciphertext:', size=(15, 1)), sg.Multiline(key="eg3_text_in", size=(51,4))],
+    [sg.Text('Private key:', size=(15, 1)), sg.In(key="eg3_text_key"), sg.FileBrowse()],
+    [sg.Text('')],
+    [sg.Button('Decrypt Text', size=(15, 1), key='eg3_text_run')],
+    [sg.Text('')],
+    [sg.Text('Plaintext:', size=(15, 1)), sg.Multiline(key="eg3_text_out", size=(51,4))],
+]
+
+eg3_file = [
+    [sg.Text('Ciphertext path:', size=(15, 1)), sg.In(key="eg3_file_in"), sg.FileBrowse()],
+    [sg.Text('Private key:', size=(15, 1)), sg.In(key="eg3_file_key"), sg.FileBrowse()],
+    [sg.Text('Save as (optional):', size=(15, 1)), sg.In(key="eg3_file_out"), sg.FileBrowse()],
+    [sg.Text('')],
+    [sg.Button('Decrypt Text', size=(15, 1), key='eg3_file_run')],
+]
+
 def pad(content):
     return [[sg.Sizer(0,30)], [sg.Sizer(30,0), sg.Column(content), sg.Sizer(40,0)], [sg.Sizer(0,40)]]
 
-rsa2 = [[
+RSA = [[
     sg.TabGroup([[
-        sg.Tab('From Text', pad(rsa2_text)),
-        sg.Tab('From File', pad(rsa2_file)),
+        sg.Tab('Key', rsa1),
+        sg.Tab('Encrypt', [[
+            sg.TabGroup([[
+                sg.Tab('From Text', pad(rsa2_text)),
+                sg.Tab('From File', pad(rsa2_file)),
+            ]])
+        ]]),
+        sg.Tab('Decrypt', [[
+            sg.TabGroup([[
+                sg.Tab('From Text', pad(rsa3_text)),
+                sg.Tab('From File', pad(rsa3_file)),
+            ]])
+        ]]),
     ]])
 ]]
 
-rsa3 = [[
+ElGamal = [[
     sg.TabGroup([[
-        sg.Tab('From Text', pad(rsa3_text)),
-        sg.Tab('From File', pad(rsa3_file)),
+        sg.Tab('Key', eg1),
+        sg.Tab('Encrypt', [[
+            sg.TabGroup([[
+                sg.Tab('From Text', pad(eg2_text)),
+                sg.Tab('From File', pad(eg2_file)),
+            ]])
+        ]]),
+        sg.Tab('Decrypt', [[
+            sg.TabGroup([[
+                sg.Tab('From Text', pad(eg3_text)),
+                sg.Tab('From File', pad(eg3_file)),
+            ]])
+        ]]),
     ]])
 ]]
 
 layout = [
     [
         sg.TabGroup([[
-            sg.Tab('RSA Key',     pad(rsa1)),
-            sg.Tab('RSA Encrypt', rsa2),
-            sg.Tab('RSA Decrypt', rsa3),
+            sg.Tab('RSA', RSA),
+            sg.Tab('ElGamal', ElGamal),
         ]])
     ],
     [sg.Frame('Message Output', [[sg.Text('', key='msg', size=(75,5))]])],
@@ -156,6 +225,22 @@ while True:
         path = 'plaintext' if (v['rsa3_file_out'] == '') else v['rsa3_file_out']
         writeFileByte(pt, path)
         window['msg'].update("Executed in " + str(dur) + " seconds\nPlaintext saved to " + path)
+
+    # ELGAMAL KEY
+    if e == 'eg1_run':
+        pub, pri = eg.get_keys(int(v['eg1_g']), int(v['eg1_x']), int(v['eg1_p']))
+        if (pub == 0):
+            window['msg'].update("Failed to generate keys; g, x, or p invalid")
+        else:
+            pub_key = str(pub[0]) + '\n' + str(pub[1]) + '\n' + str(pub[2])
+            pri_key = str(pri[0]) + '\n' + str(pri[1])
+            pub_path = 'eg_key.pub' if (v['eg1_pub'] == '') else v['eg1_pub']
+            pri_path = 'eg_key.pri' if (v['eg1_pri'] == '') else v['eg1_pri']
+            writeFile(pub_key, pub_path)
+            m = "Public key saved to " + pub_path
+            writeFile(pri_key, pri_path)
+            m += "\nPrivate key saved to " + pri_path
+            window['msg'].update(m)
 
     # EXIT
     if e == 'close' or e == sg.WIN_CLOSED:
