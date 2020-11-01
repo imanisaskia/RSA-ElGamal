@@ -7,8 +7,6 @@ from math import factorial
 def encrypt(plaintext, y, g, p, k):
     block_size = len(str(p)) // 4
     plaintext = string_get_blocks(plaintext, block_size)
-    print("--------PLAINTEXT BLOCK CREATED---------")
-    print(plaintext)
     block_ciphertext = []
 
     for blok in plaintext:
@@ -16,11 +14,7 @@ def encrypt(plaintext, y, g, p, k):
         b = pow(y, k) * blok % p
         block_ciphertext.append([a, b])
 
-    print("--------ENCRYPTION DONE---------")
-
     ciphertext = block_ciphertext
-
-    print("--------ENCRYPTION FORMATTING DONE---------")
 
     return ciphertext
 
@@ -33,10 +27,8 @@ def decrypt(ciphertext, x, p):
         b = blok[1]
         a2 = pow(a, (p-1-x), p)
         m = b * a2 % p
-        print(a, b, p, a2)
         block_plaintext.append(m)
 
-    print(block_plaintext)
     plaintext = get_string(block_plaintext)
 
     return plaintext
@@ -54,26 +46,26 @@ def is_k_valid(k, p):
     return (k < p) and (k >= 0)
     
 
-keys = get_keys(1795041, 119, 2792099)
-public_key = keys[0]
-private_key = keys[1]
+# keys = get_keys(1795041, 119, 2792099)
+# public_key = keys[0]
+# private_key = keys[1]
 
-y = public_key[0]
-g = public_key[1]
-p = public_key[2]
-k = 123
-x = private_key[0]
-msg = "halo apa kabar? nama saya elvina".encode('latin-1')
+# y = public_key[0]
+# g = public_key[1]
+# p = public_key[2]
+# k = 123
+# x = private_key[0]
+# msg = "halo apa kabar? nama saya elvina".encode('latin-1')
 
 # print(g, k, p)
 # print(g**k)
 # print((g**k) % p)
 
-ciphertext = encrypt(msg, y, g, p, k)
-print(ciphertext)
+# ciphertext = encrypt(msg, y, g, p, k)
+# print(ciphertext)
 
-plaintext = decrypt(ciphertext, x, p)
-print(plaintext)
+# plaintext = decrypt(ciphertext, x, p)
+# print(plaintext)
 
 # x = 2792097
 # while rsa.is_prime(x) == False:
