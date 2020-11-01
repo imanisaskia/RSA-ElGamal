@@ -22,28 +22,28 @@ def random_e(phi):
         if (gcd(num, phi)==1):
             return num
 
-# Generate private and public keys, returns n, e, and d
+# FUNC: GENERATE KEYS
+# Generate private and public keys, returns message (if failed), n, e, and d
 def generate_keys(p, q, e = None):
-    
     if not is_prime(p):
-        print("Fail to generate keys;", p, "is not a prime number")
-        return
-    
+        return ("Failed to generate keys; p is not a prime number"), 0,0,0
     if not is_prime(q):
-        print("Fail to generate keys;", q, "is not a prime number")
-        return
-    
+        return ("Failed to generate keys; q is not a prime number"), 0,0,0
+
+    # generate n    
     n = p * q
+    if (n < 1000):
+        return ("Failed to generate keys; n=" + str(n) + " must be > 1000"), 0,0,0
     phi = (p-1) * (q-1)
 
-    if e:
+    if not (e == None):
         if not is_coprime(e, phi):
-            print("Fail to generate keys;", e, "is not a co-prime of", phi)
-            return
+            return ("Failed to generate keys; e=" + str(e) + " is not co-prime of phi=" + str(phi)), 0,0,0
     else:
+        # generate random e if not given
         e = random_e(phi)
 
-    # generate private key
+    # generate d
     k = 1
     d = (1 + k*phi) / e
     while not float.is_integer(d):
@@ -51,8 +51,10 @@ def generate_keys(p, q, e = None):
         d = (1 + k*phi) / e
     d = round(d)
 
-    return n, e, d
+    return None, n, e, d
 
+# FUNC: ENCRYPT
+# Encrypt plaintext, returns ciphertext (integer string)
 def encrypt(plaintext, n, e):
     block_size = len(str(n)) // 4
     blocks = string_get_blocks(plaintext, block_size)
@@ -62,6 +64,8 @@ def encrypt(plaintext, n, e):
     ciphertext = get_int(c_blocks, len(str(n)))
     return ciphertext
 
+# FUNC: DECRYPT
+# Decrypt ciphertest (integer string), returns plaintext (string)
 def decrypt(ciphertext, n, d):
     block_size = len(str(n))
     blocks = int_get_blocks(ciphertext, block_size)
@@ -71,11 +75,14 @@ def decrypt(ciphertext, n, d):
     plaintext = get_string(p_blocks)
     return plaintext
 
-'''n, e, d = generate_keys(3109, 7331)
-print(n)
-print(e)
-print(d)'''
+'''msg, n, e, d = generate_keys(5, 2, 1019)
+if msg:
+    print(msg)
+else:
+    print(n)
+    print(e)
+    print(d)'''
 
-c = encrypt(("TEST MESSAGE").encode('latin-1'), 22792079, 11378501)
+'''c = encrypt(("TEST MESSAGE").encode('latin-1'), 22792079, 11378501)
 print("Hasil:", c)
-print(decrypt(c, 22792079, 18669701).decode('latin-1'))
+print(decrypt(c, 22792079, 18669701).decode('latin-1'))'''
