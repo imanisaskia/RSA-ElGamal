@@ -98,7 +98,7 @@ eg3_file = [
     [sg.Button('Decrypt Text', size=(15, 1), key='eg3_file_run')],
 ]
 
-dh1 = [
+DiffieHelman = [
     [sg.Text('Number n:', size=(15, 1)), sg.In(key="dh1_n")],
     [sg.Text('Number g:', size=(15, 1)), sg.In(key="dh1_g")],
     [sg.Text('Number x:', size=(15, 1)), sg.In(key="dh1_x")],
@@ -148,18 +148,12 @@ ElGamal = [[
     ]])
 ]]
 
-DiffieHelman = [[
-    sg.TabGroup([[
-        sg.Tab('Key', pad(dh1)),
-    ]])
-]]
-
 layout = [
     [
         sg.TabGroup([[
             sg.Tab('RSA', RSA),
             sg.Tab('ElGamal', ElGamal),
-            sg.Tab('Diffie Helman', DiffieHelman),
+            sg.Tab('Diffie Helman', pad(DiffieHelman)),
         ]])
     ],
     [sg.Frame('Message Output', [[sg.Text('', key='msg', size=(75,5))]])],
