@@ -40,7 +40,7 @@ def get_keys(g, x, p):
     if is_key_valid(g, x, p):
         return [(pow(g, x, p)), g, p], [x, p] # public key [y, g, p], private key [x, p]
     else:
-        return 0
+        return [0,0]
 
 def is_key_valid(g, x, p):
     return (rsa.is_prime(p)) and (g < p) and (1 <= x) and (x <= p-2)
