@@ -2,6 +2,7 @@ import os
 import PySimpleGUI as sg
 import rsa
 import elgamal as eg
+import diffiehelman as dh
 import time
 from ast import literal_eval
 
@@ -97,6 +98,17 @@ eg3_file = [
     [sg.Button('Decrypt Text', size=(15, 1), key='eg3_file_run')],
 ]
 
+dh1 = [
+    [sg.Text('Number n:', size=(15, 1)), sg.In(key="dh1_n")],
+    [sg.Text('Number g:', size=(15, 1)), sg.In(key="dh1_g")],
+    [sg.Text('Number x:', size=(15, 1)), sg.In(key="dh1_x")],
+    [sg.Text('Number y:', size=(15, 1)), sg.In(key="dh1_y")],
+    [sg.Text('')],
+    [sg.Button('Generate Keys', size=(15, 1), key='dh1_run')],
+    [sg.Text('')],
+    [sg.Text('Key:', size=(15, 1)), sg.Multiline(key="dh1_text_out", size=(51,4))],
+]
+
 def pad(content):
     return [[sg.Sizer(0,30)], [sg.Sizer(30,0), sg.Column(content), sg.Sizer(40,0)], [sg.Sizer(0,40)]]
 
@@ -136,11 +148,18 @@ ElGamal = [[
     ]])
 ]]
 
+DiffieHelman = [[
+    sg.TabGroup([[
+        sg.Tab('Key', dh1),
+    ]])
+]]
+
 layout = [
     [
         sg.TabGroup([[
             sg.Tab('RSA', RSA),
             sg.Tab('ElGamal', ElGamal),
+            sg.Tab('Diffie Helman', DiffieHelman),
         ]])
     ],
     [sg.Frame('Message Output', [[sg.Text('', key='msg', size=(75,5))]])],
@@ -299,6 +318,14 @@ while True:
         path = 'plaintext' if (v['eg3_file_out'] == '') else v['eg3_file_out']
         writeFileByte(pt, path)
         window['msg'].update("Executed in " + str(dur) + " seconds\nPlaintext saved to " + path)
+
+    # ELGAMAL KEY
+    if e == 'dh1_run':
+        key = dh.get_our_key(int(v['dh1_n']),  int(v['dh1_g']), int(v['dh1_x']), int(v['dh1_y']))
+        key = str(key)
+        window['dh1_text_out'].update(key)
+        m = "Key generated successfully"
+        window['msg'].update(m)
 
     # EXIT
     if e == 'close' or e == sg.WIN_CLOSED:

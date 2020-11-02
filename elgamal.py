@@ -5,18 +5,21 @@ import random
 from math import factorial
 
 def encrypt(plaintext, y, g, p, k):
-    block_size = len(str(p)) // 4
-    plaintext = string_get_blocks(plaintext, block_size)
-    block_ciphertext = []
+    if is_k_valid(k, p):
+        block_size = len(str(p)) // 4
+        plaintext = string_get_blocks(plaintext, block_size)
+        block_ciphertext = []
+        
+        for blok in plaintext:
+            a = pow(g, k, p)
+            b = pow(y, k) * blok % p
+            block_ciphertext.append([a, b])
 
-    for blok in plaintext:
-        a = pow(g, k, p)
-        b = pow(y, k) * blok % p
-        block_ciphertext.append([a, b])
+        ciphertext = block_ciphertext
 
-    ciphertext = block_ciphertext
-
-    return ciphertext
+        return ciphertext
+    else:
+        raise AttributeError
 
 def decrypt(ciphertext, x, p):
     block_size = len(str(p)) // 4
@@ -44,7 +47,6 @@ def is_key_valid(g, x, p):
 
 def is_k_valid(k, p):
     return (k < p) and (k >= 0)
-    
 
 # keys = get_keys(1795041, 119, 2792099)
 # public_key = keys[0]
