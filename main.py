@@ -114,7 +114,7 @@ def pad(content):
 
 RSA = [[
     sg.TabGroup([[
-        sg.Tab('Key', rsa1),
+        sg.Tab('Key', pad(rsa1)),
         sg.Tab('Encrypt', [[
             sg.TabGroup([[
                 sg.Tab('From Text', pad(rsa2_text)),
@@ -132,7 +132,7 @@ RSA = [[
 
 ElGamal = [[
     sg.TabGroup([[
-        sg.Tab('Key', eg1),
+        sg.Tab('Key', pad(eg1)),
         sg.Tab('Encrypt', [[
             sg.TabGroup([[
                 sg.Tab('From Text', pad(eg2_text)),
@@ -150,7 +150,7 @@ ElGamal = [[
 
 DiffieHelman = [[
     sg.TabGroup([[
-        sg.Tab('Key', dh1),
+        sg.Tab('Key', pad(dh1)),
     ]])
 ]]
 
