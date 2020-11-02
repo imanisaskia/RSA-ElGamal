@@ -280,9 +280,12 @@ while True:
         p = keys[2]
         start_time = time.time()
         ct = eg.encrypt(pt, y, g, p, int(v['eg2_text_k']))
-        dur = time.time() - start_time
-        window['eg2_text_out'].update(ct)
-        window['msg'].update("Executed in " + str(dur) + " seconds")
+        if (ct == 0):
+            window['msg'].update("k is not valid")
+        else:
+            dur = time.time() - start_time
+            window['eg2_text_out'].update(ct)
+            window['msg'].update("Executed in " + str(dur) + " seconds")
     if e == 'eg2_file_run':
         pt = readText(v['eg2_file_in'])
         keys = readKeys(v['eg2_file_key'])
@@ -291,10 +294,13 @@ while True:
         p = keys[2]
         start_time = time.time()
         ct = eg.encrypt(pt, y, g, p, int(v['eg2_file_k']))
-        dur = time.time() - start_time
-        path = 'ciphertext' if (v['eg2_file_out'] == '') else v['eg2_file_out']
-        writeFile(ct, path)
-        window['msg'].update("Executed in " + str(dur) + " seconds\nCiphertext saved to " + path)
+        if (ct == 0):
+            window['msg'].update("k is not valid")
+        else:
+            dur = time.time() - start_time
+            path = 'ciphertext' if (v['eg2_file_out'] == '') else v['eg2_file_out']
+            writeFile(ct, path)
+            window['msg'].update("Executed in " + str(dur) + " seconds\nCiphertext saved to " + path)
 
     # ELGAMAL DECRYPT
     if e == 'eg3_text_run':

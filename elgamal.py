@@ -19,7 +19,7 @@ def encrypt(plaintext, y, g, p, k):
 
         return ciphertext
     else:
-        raise AttributeError
+        return 0
 
 def decrypt(ciphertext, x, p):
     block_size = len(str(p)) // 4
