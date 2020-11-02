@@ -293,7 +293,7 @@ while True:
         else:
             dur = time.time() - start_time
             path = 'ciphertext' if (v['eg2_file_out'] == '') else v['eg2_file_out']
-            writeFile(ct, path)
+            writeFile(str(ct), path)
             window['msg'].update("Executed in " + str(dur) + " seconds\nCiphertext saved to " + path)
 
     # ELGAMAL DECRYPT
@@ -308,7 +308,7 @@ while True:
         window['eg3_text_out'].update(pt)
         window['msg'].update("Executed in " + str(dur) + " seconds")
     if e == 'eg3_file_run':
-        ct = literal_eval(readText(v['eg3_file_in']))
+        ct = literal_eval(readText(v['eg3_file_in']).decode())
         keys = readKeys(v['eg3_file_key'])
         x = keys[0]
         p = keys[1]
